@@ -3,12 +3,13 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
 const leadRoutes = require('./routes/leadRoutes');
 const cors = require('cors');
+const path = require('path');
 
 let refreshTokens = []; // Store refresh tokens
 
-app.use(express.static(path.join(__dirname, 'frontend')));
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'frontend')));
 app.use(bodyParser.json());
 app.use(cors());
 
