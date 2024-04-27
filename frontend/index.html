@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Lead Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loginSection">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <p id="loginError" style="color: red;"></p>
+    </div>
+    <div id="leadsSection" style="display:none;">
+        <button id="logoutButton">Logout</button>
+        <h2>Leads</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Company Name</th>
+                    <th>Contact Info</th>
+                    <th>Product Interest</th>
+                    <th>Edit</th> <!-- New header for edit actions -->
+                </tr>
+            </thead>
+            <tbody id="leadsTableBody">
+                <!-- Dynamically generated leads will go here -->
+            </tbody>
+        </table>        
+        <p id="leadsError" style="color: red;"></p>
+    </div>
+    <div id="addLeadSection" style="display:none;">
+        <h2>Add New Lead</h2>
+        <form id="addLeadForm">
+            <input type="text" id="companyName" placeholder="Company Name" required>
+            <input type="text" id="contactInfo" placeholder="Contact Info" required>
+            <input type="text" id="productInterest" placeholder="Product Interest" required>
+            <button type="submit">Add Lead</button>
+        </form>
+        <p id="addLeadError" style="color: red;"></p>
+    </div>
+        <!-- Edit Lead Modal -->
+    <div id="editLeadModal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Lead</h2>
+            <form id="editLeadForm">
+                <input type="hidden" id="editId">
+                <label for="editCompanyName">Company Name:</label>
+                <input type="text" id="editCompanyName" name="editCompanyName" required>
+                <label for="editContactInfo">Contact Info:</label>
+                <input type="text" id="editContactInfo" name="editContactInfo" required>
+                <label for="editProductInterest">Product Interest:</label>
+                <input type="text" id="editProductInterest" name="editProductInterest" required>
+                <button type="submit">Update Lead</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
