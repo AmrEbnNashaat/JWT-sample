@@ -215,7 +215,7 @@ addLeadForm.addEventListener('submit', function (e) {
     const contactInfo = document.getElementById('contactInfo').value;
     const productInterest = document.getElementById('productInterest').value;
 
-    axios.post('http://localhost:3000/leads', { companyName, contactInfo, productInterest }, {
+    axios.post(`${URL}/leads`, { companyName, contactInfo, productInterest }, {
         headers: { Authorization: `Bearer ${accessToken}` }
     })
     .then(response => {
