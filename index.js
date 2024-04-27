@@ -6,10 +6,16 @@ const cors = require('cors');
 
 let refreshTokens = []; // Store refresh tokens
 
+app.use(express.static(path.join(__dirname, 'frontend')));
+
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
 app.use('/', authRoutes);
 app.use('/leads', leadRoutes);
 // Start the server
