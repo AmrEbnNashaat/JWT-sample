@@ -11,6 +11,13 @@ const logoutButton = document.getElementById('logoutButton');
 let accessToken = localStorage.getItem('accessToken');
 let refreshToken = localStorage.getItem('refreshToken');
 let globalLeads = [];
+let hostedOnLive = false;
+let URL = ""
+if(hostedOnLive) {
+  URL = "https://jwt-sample.onrender.com"
+} else {
+  URL = "http://localhost:3000"
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     if (accessToken && refreshToken) {
@@ -25,7 +32,8 @@ loginForm.addEventListener('submit', function (e) {
     e.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    axios.post('http://localhost:3000/login', { username, password })
+    console.log("URL HERE IS: ", `${URL}/`)
+    axios.post(`${URL}/login`, { username, password })
         .then(response => {
             accessToken = response.data.accessToken;
             refreshToken = response.data.refreshToken;
@@ -39,7 +47,7 @@ loginForm.addEventListener('submit', function (e) {
             showAddLeadForm();
         })
         .catch(error => {
-            console.error('Authentication failed:', error);
+            console.error('Authentication failed:', error.response.data);
             loginError.textContent = 'Failed to login: ' + (error.response ? error.response.data : 'Server error');
         });
 });
@@ -47,7 +55,7 @@ loginForm.addEventListener('submit', function (e) {
 //Script to handle logout logic
 logoutButton.addEventListener('click', function (e) {
     e.preventDefault();
-    axios.post('http://localhost:3000/logout', 
+    axios.post(`${URL}/logout`, 
         { token: refreshToken }
     )
     .then(response => {
@@ -71,7 +79,7 @@ logoutButton.addEventListener('click', function (e) {
 });
 
 function fetchLeads() {
-    axios.get('http://localhost:3000/leads', {
+    axios.get(`${URL}/leads`, {
         headers: { Authorization: `Bearer ${accessToken}` }
     })
     .then(response => {
@@ -102,7 +110,7 @@ function fetchLeads() {
 }
 
 function editLead(id) {
-    axios.get(`http://localhost:3000/leads/${id}`, {
+    axios.get(`${URL}/leads/${id}`, {
         headers: { Authorization: `Bearer ${accessToken}` }
     })
     .then(response => {
@@ -133,7 +141,7 @@ document.getElementById('editLeadForm').addEventListener('submit', function(e) {
     const contactInfo = document.getElementById('editContactInfo').value;
     const productInterest = document.getElementById('editProductInterest').value;
 
-    axios.put(`http://localhost:3000/leads/${id}`, {
+    axios.put(`${URL}/leads/${id}`, {
         companyName, contactInfo, productInterest
     }, {
         headers: { Authorization: `Bearer ${accessToken}` }
@@ -162,7 +170,7 @@ function closeEditModal() {
 
 function refreshTokenRequest() {
     console.log("Refresh Toke: ", refreshToken)
-    axios.post('http://localhost:3000/token', { token: refreshToken })
+    axios.post(`${URL}/token`, { token: refreshToken })
         .then(response => {
             accessToken = response.data.accessToken;
             localStorage.setItem('accessToken', accessToken);

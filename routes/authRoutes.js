@@ -5,12 +5,18 @@ const { users, refreshTokens } = require('../database/dataStore');
 
 const router = express.Router();
 
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+// Login endpoint
 // Login endpoint
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
     const user = users.find(u => u.username === username && u.password === password);
+    console.log("IM HERE")
     try {
         if (user) {
+            console.log("Here?")
             const accessToken = jwt.sign(
                 { username: user.username, role: user.role }, 
                 accessTokenSecret, 
@@ -23,13 +29,15 @@ router.post('/login', (req, res) => {
             refreshTokens.push(refreshToken);
             res.json({ accessToken, refreshToken });
         } else {
+            console.log("Failed here")
             res.status(401).send('Username or password incorrect');
         }
     } catch (err) {
+        console.log("Error: ", err)
         return res.status(500).send({Error: err})
     }
-    
 });
+
 
 // Token refresh endpoint
 router.post('/token', (req, res) => {
@@ -51,7 +59,7 @@ router.post('/token', (req, res) => {
 
         res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
     } catch (err) {
-        res.sendStatus(403);
+        res.status(403).send({Error:err});
     }
 });
 
@@ -66,5 +74,9 @@ router.post('/logout', (req, res) => {
     }
     res.send('Logout successful');
 });
+
+router.get('/health', (req, res) => {
+    res.send("Healthy")
+})
 
 module.exports = router;

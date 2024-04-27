@@ -14,11 +14,10 @@ app.use(bodyParser.json());
 app.use(cors());
 
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
-});
+
 app.use('/', authRoutes);
 app.use('/leads', leadRoutes);
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
