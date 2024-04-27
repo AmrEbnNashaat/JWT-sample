@@ -13,6 +13,7 @@ let refreshToken = localStorage.getItem('refreshToken');
 let globalLeads = [];
 let hostedOnLive = true;
 let URL = ""
+
 if(hostedOnLive) {
   URL = "https://jwt-sample.onrender.com"
 } else {
@@ -35,6 +36,8 @@ loginForm.addEventListener('submit', function (e) {
     console.log("URL HERE IS: ", `${URL}/`)
     axios.post(`${URL}/login`, { username, password })
         .then(response => {
+            // If successful, we grab tokens, set them to localStorage, remove the loginForm and loginError
+            // Display the leads section, and call fetchLeads to get all leads, and show Lead form (handles roles)
             accessToken = response.data.accessToken;
             refreshToken = response.data.refreshToken;
             localStorage.setItem('accessToken', accessToken);
@@ -93,14 +96,14 @@ function fetchLeads() {
                 <td>${lead.companyName}</td>
                 <td>${lead.contactInfo}</td>
                 <td>${lead.productInterest}</td>
-                ${user.role === 'admin' ? `<td><button onclick="editLead(${lead.id})">Edit</button></td>` : ''}
+                ${user.role === 'admin' ? `<td><button onclick="editLead(${lead.id})">Edit</button> <button onclick="deleteLead(${lead.id})">Delete</button></td>` : ''}
             </tr>`;
             leadsTableBody.innerHTML += row;
         });
+        
     })
     .catch(error => {
         console.error('Failed to fetch leads:', error);
-        const leadsError = document.getElementById('leadsError');
         if (error.response && error.response.status === 403) {
             refreshTokenRequest();
         } else {
@@ -108,6 +111,24 @@ function fetchLeads() {
         }
     });
 }
+
+
+function deleteLead(id) {
+    if (confirm('Are you sure you want to delete this lead?')) {
+        axios.delete(`${URL}/leads/${id}`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        })
+        .then(response => {
+            fetchLeads(); // Reload the leads to reflect the deletion
+        })
+        .catch(error => {
+            console.error('Failed to delete lead:', error);
+            leadsError.textContent = 'Failed to delete lead: ' + (error.response ? error.response.data : 'Server error');
+        });
+    }
+}
+
+
 
 function editLead(id) {
     axios.get(`${URL}/leads/${id}`, {
@@ -124,7 +145,6 @@ function editLead(id) {
     .catch(error => {
         console.error('Failed to fetch lead details:', error);
         // Handle error here
-        const leadsError = document.getElementById('leadsError');
         if (error.response && error.response.status === 403) {
             refreshTokenRequest();
         } else {
@@ -152,7 +172,6 @@ document.getElementById('editLeadForm').addEventListener('submit', function(e) {
     })
     .catch(error => {
         console.error('Failed to update lead:', error);
-        const leadsError = document.getElementById('leadsError');
         if (error.response && error.response.status === 403) {
             refreshTokenRequest();
         } else {
@@ -196,6 +215,7 @@ function logoutUser() {
 }
 
 
+//Decodes user's access token, if the user is an admin, we show it, if not, we dont.
 function showAddLeadForm() {
     const user = jwt_decode(accessToken);
     if (user.role === 'admin') {
@@ -209,30 +229,33 @@ function showEditLeadForm() {
 
 }
 
+//This handles the Submit form for creating a new lead
 addLeadForm.addEventListener('submit', function (e) {
     e.preventDefault();
+
+    //Getting the required data to create a new lead
     const companyName = document.getElementById('companyName').value;
     const contactInfo = document.getElementById('contactInfo').value;
     const productInterest = document.getElementById('productInterest').value;
-
+     
+    // Calling the endpoint that handles creation of a new lead
     axios.post(`${URL}/leads`, { companyName, contactInfo, productInterest }, {
         headers: { Authorization: `Bearer ${accessToken}` }
     })
     .then(response => {
         fetchLeads(); // Refresh the leads list
         addLeadForm.reset(); // Reset the form fields
+        leadsError.textContent = "";
     })
     .catch(error => {
-        console.log("Error: ", error)
-        console.error('Failed to add lead:', error);
-        const leadsError = document.getElementById('leadsError');
-        console.log("Error Response: ", error.response)
-        console.log("Error Code: ", error.response.status)
+
+        //Check if error is because the token expired, if yes, then request a new one using the refresh token
         if (error.response && error.response.status === 403) {
-            console.log("IM HERE")
             refreshTokenRequest();
         } else {
-            leadsError.textContent = 'Failed to fetch leads: ' + (error.response ? error.response.data : 'Server error');
+            console.log("Error Object: ", error.response.data.message)
+            leadsError.textContent = `Failed to Create a new Lead: ${error.response.data.message}`
+            //leadsError.textContent = 'Failed to fetch leads: ' + (error.response ? error.response.data : 'Server error');
         }
     });
 });
