@@ -11,7 +11,7 @@ const logoutButton = document.getElementById('logoutButton');
 let accessToken = localStorage.getItem('accessToken');
 let refreshToken = localStorage.getItem('refreshToken');
 let globalLeads = [];
-let hostedOnLive = true;
+let hostedOnLive = false;
 let URL = ""
 
 if (hostedOnLive) {
@@ -20,6 +20,8 @@ if (hostedOnLive) {
 	URL = "http://localhost:3000"
 }
 
+// If we both the access token and refresh token are grabbed from localStorage, display the login form and remove the leadsSection
+// Then fetch all leads, and run showAddLeadForm (checks user role first)
 document.addEventListener('DOMContentLoaded', () => {
 	if (accessToken && refreshToken) {
 		loginForm.style.display = 'none';
@@ -43,7 +45,6 @@ loginForm.addEventListener('submit', function(e) {
 			localStorage.setItem('accessToken', accessToken);
 			localStorage.setItem('refreshToken', refreshToken);
 			loginForm.style.display = 'none';
-
 			loginError.style.display = 'none';
 			leadsSection.style.display = 'block';
 			fetchLeads();
@@ -112,6 +113,7 @@ function fetchLeads() {
 }
 
 
+// to delete a specific lead from view and call the backend endpoint
 function deleteLead(id) {
 	if (confirm('Are you sure you want to delete this lead?')) {
 		axios.delete(`${URL}/leads/${id}`, {
@@ -130,11 +132,13 @@ function deleteLead(id) {
 
 
 
+// to call the backend endpoint of updating a lead
 function editLead(id) {
 	axios.get(`${URL}/leads/${id}`, {
 			headers: { Authorization: `Bearer ${accessToken}` }
 		})
 		.then(response => {
+            // 
 			const lead = response.data;
 			document.getElementById('editId').value = lead.id;
 			document.getElementById('editCompanyName').value = lead.companyName;
@@ -184,12 +188,13 @@ document.getElementById('editLeadForm').addEventListener('submit', function(e) {
 		});
 });
 
+// Function to close the editing wizard
 function closeEditModal() {
 	document.getElementById('editLeadModal').style.display = 'none';
 }
 
 
-
+// Function to request another token using the refresh token from the backend
 function refreshTokenRequest() {
 	console.log("Refresh Toke: ", refreshToken)
 	axios.post(`${URL}/token`, { token: refreshToken })
@@ -206,6 +211,7 @@ function refreshTokenRequest() {
 		});
 }
 
+// Log out the user, remove user's tokens from the localStorage, set them to null, and return back to loginForm
 function logoutUser() {
 	console.log('Session expired or token invalid, logging out.');
 	localStorage.removeItem('accessToken');
