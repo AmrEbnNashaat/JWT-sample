@@ -11,7 +11,7 @@ const logoutButton = document.getElementById('logoutButton');
 let accessToken = localStorage.getItem('accessToken');
 let refreshToken = localStorage.getItem('refreshToken');
 let globalLeads = [];
-let hostedOnLive = false;
+let hostedOnLive = true;
 let URL = ""
 
 if (hostedOnLive) {
